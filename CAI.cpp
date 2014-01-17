@@ -1,0 +1,734 @@
+/*
+Copyright Antuan (2009)
+
+Group Members : Antonio Vassell 0805694
+				Shauntae Mitchell
+
+Program Name: CAI-ULTIMATE
+Description: This program is to provide primary students arithmetic exercise questions.
+
+This is the main source code for the program.
+*/
+
+/****************************************HEADER FILES ***********************/
+#include <stdlib.h>
+#include <stdio.h>
+#include <conio.h>
+#include <dos.h>
+#include <windows.h>
+#include <iostream>
+#include <time.h>
+#include "LOGIN.cpp"
+/************************Function Prototypes*********************************/
+
+void Fullscreen();      //To make window fullscreen
+void randomNum(float *, float *, int, int);       //To produce random numbers
+char input(int *);												//Reads user inputs of option
+float calculate(float, float, char);         	//Calculates the answer of the operation
+BOOL AnswerInput(float, float *);           		//Reads the answer of the user
+void goodResponse();                   			//Gives a good response (written and oral)
+void badResponse();                    			//Gives a bad response (written and oral)
+void ThemeMusicFunc(int *);							//Suspected to change the background music
+void PLAYSONG(int);                             //What is a program for kids without music? Vegetables.....
+char Mix_Questions();
+int playOver_Level();
+void nextLevel(int *, int *, int *, int *);
+void sub_options(int *);
+void certificate();
+/***********************************************************************************/
+
+/****************************MAIN FUNCTION *****************************************/
+int main()
+{
+	Fullscreen();        								//Call the function Fullscreen to put the window in fullscreen
+	system("color cf");              				//Set the background color to white and the text color to red. HOt.
+	PlaySound("Themes\\Start.wav", NULL, SND_ASYNC);
+	system("cls");
+
+	gotoxy(35, 30);
+	printf("LOADING");
+
+	gotoxy(4, 7);
+	printf(" ####   #    ###       ### ### ###   ##### ### ###   ##   #    ##### #####");
+	gotoxy(43, 30);
+	printf(".");
+	sleep(1);
+	gotoxy(4, 8);
+	printf("##  #   ##    #         #   #   #      #    #   ##  ##    ##     #    #  #");
+	gotoxy(44, 30);
+	printf(".");
+	sleep(1);
+	gotoxy(4, 9);
+	printf("#      # #    #         #   #   #      #    #   ### ##   # #     #    ### ");
+	gotoxy(45, 30);
+	printf(".");
+	sleep(1);
+	gotoxy(4, 10);
+	printf("#      ####   #  #####  #   #   #      #    #   # ## #   ####    #    #   ");
+	gotoxy(46, 30);
+	printf(".");
+	sleep(1);
+	gotoxy(4, 11);
+	printf("##    #   #   #         #   #   #  #   #    #   # #  #  #   #    #    #  #");
+	gotoxy(47, 30);
+	printf(".");
+	sleep(1);
+	gotoxy(4, 12);
+	printf(" #### #   ## ###        #####  #####  ###  ### ###  ### #   ##  ###  #####");
+
+	sleep(2);
+
+	gotoxy(25, 30);
+	printf("PRESS ANY KEY TO CONTINUE");
+	getch();
+
+	char option;
+	float result, num1, num2, *ptrnum1, *ptrnum2;
+	float rightAnswers = 0, *ptr_rightAnswers, proformance, questions = 0;
+	int MAXrandNum1 = 9, *ptr_MAXrandNum1, MAXrandNum2 = 9, *ptr_MAXrandNum2, currentLevel = 1, *ptr_currentLevel, passGrade = 70, *ptr_passGrade, ThemeMusic = 2, *ptr_ThemeMusic;
+
+	ptr_MAXrandNum1 = &MAXrandNum1;
+	ptr_MAXrandNum2 = &MAXrandNum2;
+	ptr_currentLevel = &currentLevel;
+	ptr_passGrade = &passGrade;
+	ptr_ThemeMusic = &ThemeMusic;                                      //Pointer assignments to the appropriate variables
+	ptr_rightAnswers = &rightAnswers;
+	ptrnum1 = &num1;
+	ptrnum2 = &num2;
+	int i;
+	BOOL isMix_question = FALSE;
+
+	Frist_Login();
+
+	PLAYSONG(ThemeMusic);                     //This plays the themesong, if themesong equals 1, it will play themesong 1, etc... suppose to have 4 themesongs.
+	CLEAR                                     //Clears the screen of anything
+		//Bad idea to load music after everything else which it could have done "stimultaneously", (however that word is spelt)
+		//Sounds make the program more exciting, so to keep primary students ocupied.
+
+	while (1)                               	//This is the main while loop of the whole proram.
+	{
+		isMix_question = FALSE;               //This is use to signal if mix question option is turned on or off.
+
+		option = input(ptr_ThemeMusic);    	//The input() function is called which ask the users choice of operation and and then returns the value that represents each operation.
+
+		if (option == 'X')
+		{
+			isMix_question = TRUE;
+		}   											//May this will have to restate but this function only has to run once per level.
+
+		while (1)										//This is the main sub while loop
+		{
+			gotoxy(1, 1);
+			cprintf("LEVEL %d\n", currentLevel);                     //Prints the current level the person is at.
+
+			if (isMix_question == TRUE)
+			{
+				option = Mix_Questions();
+			}
+
+			randomNum(ptrnum1, ptrnum2, MAXrandNum1, MAXrandNum2);    //First thing, The random function is called passing the 2 pointers ptrnum1, ptrnum2, to randomize the numbers in num1 and num2
+
+			result = calculate(num1, num2, option);								//Ok this is the brain part.The calculate(.......) function is called.
+
+			//The value of the two numbers are pass into it, and the option(type of calculation).
+			//The result is calculated and place in the variable "result"."result" is = to 'NULL' if option was invalid
+
+			AnswerInput(result, ptr_rightAnswers);    //This gets an answer from the user, compare it with value of "result" to see if its right or wrong
+
+			PLAYSONG(ThemeMusic);                     //This restarts the themesong because it would have stop when a response was given for right or wrong answer
+
+			questions++;  										//Each time a loop runs successfully, it increminates the value in the variable "questions",
+			//to signify how many questions are done.
+
+			if (questions >= 10)              				//The begining of a huge if statement to check where we at, in terms of the level,
+			{
+				CLEAR								//Clears the screen
+					printf("\nYOU HAVE COME TO THE END OF THIS LEVEL\n");
+
+				if (rightAnswers)    //IF (RIGHTANSWER NOT ZERO)              //This avoids calculation with 0s. As too much bugs would occur......
+				{
+					proformance = (rightAnswers / questions) * 100;    //To calculate the score percentage...
+
+					printf("\nYOUR SCORE IS %.0f\n", proformance);     //Prints the score for the person
+					//I wonder if i really had to use a float??? hmmm... Maybe i could use casting for the variable proformance.(float)proformance
+
+					if (proformance >= passGrade)                                //checks if score or proformance is over 70(the pass mark, this should be change as each level has a different pass mark)
+					{
+						nextLevel(ptr_MAXrandNum1, ptr_MAXrandNum2, ptr_currentLevel, ptr_passGrade);
+
+						questions = 0;
+						proformance = 0;
+						rightAnswers = 0;
+
+						system("cls");
+						gotoxy(20, 20);
+						printf("\nYOUR NOW ON TO THE NEXT LEVEL!\n");
+						getch();
+					}
+					else
+					{
+						CLEAR
+							printf("\n\nYOUR PROFORMANCE IS BELOW AVERAGE\n\n");
+
+						if (proformance >= 50)
+						{
+							if (playOver_Level() == 0)
+							{
+								questions = 0;
+								proformance = 0;
+								rightAnswers = 0;
+								continue;
+							}
+						}
+						else
+						{
+							printf("\n\nIT IS REQUIRED FOR YOU TO SEE YOUR INSTRUCTOR FOR HELP\n");
+							printf("\n\nSORRY BUT THIS PROGRAM WILL EXIT NOW\n\n");
+							PAUSE
+								exit(0);
+						}//End of else
+					}//End of else
+
+				}    //END OF IF (RIGHTANSWER NOT ZERO)
+
+				else
+				{    //IF RIGHTANSWER IS ZERO
+					printf("\nYOU HAVE ANSWERED NO QUESTION CORRECTLY\n");
+					printf("\n\nIT IS REQUIRED FOR YOU TO SEE YOUR INSTRUCTOR FOR HELP\n");
+					printf("\n\nTHE PROGRAM WILL EXIT\n");
+					PAUSE
+						exit(0);
+				}    //END OF ELSE FOR  IF (RIGHTANSWER NOT ZERO)
+			}//End main if
+			printf("\n");
+			PAUSE
+
+				sub_options(ptr_ThemeMusic);
+			CLEAR
+				//CLEAR
+		}//Ends the main sub while loop...
+	}   //Ends the main while loop....
+	PAUSE
+		return 0;
+}//End of Main
+/************************************END OF MAIN FUNCTION ***************************/
+
+/********************************** ANSWER INPUT FUNCTION ***************************/
+BOOL AnswerInput(float result, float *rightAnswers)
+{
+	float givenAnswer;
+	int check = 0, i;
+	char str[6], *ptr_str;
+	BOOL  right;
+	ptr_str = str;
+
+	enum{ DIGIT, NONDIGIT };
+
+	printf("\nENTER YOUR ANSWER:\n");
+	do	{
+		check = DIGIT;
+		printf("==>");
+		reads(ptr_str, 5);
+
+		for (i = 0; i < strlen(str); i++)
+		{
+			if (isalpha(str[i]))
+			{
+				check = NONDIGIT;
+			}
+		}
+		if (check == NONDIGIT)
+		{
+			printf("\rINVALID INPUT");
+			getch();
+			printf("\r              \r");
+		}
+	} while (check == NONDIGIT);
+
+	givenAnswer = atof(str);
+
+	if (result == givenAnswer)
+	{
+		right = TRUE;
+		goodResponse();
+		*rightAnswers = *rightAnswers + 1;
+	}
+	else
+	{
+		right = FALSE;
+		badResponse();
+		printf("\nTHE RIGHT ANSWER IS: %.1f\n", result);
+	}
+
+	fflush(stdin);
+	return right;
+}
+/********************************END ANSWER INPUT FUNCTION ***************************/
+
+/*************************************CALCULATE FUNCTION *****************************/
+float calculate(float num1, float num2, char option)
+{
+	float result;
+
+	switch (option)
+	{
+	case 'M':    printf("\nMULTIPLICATION\n");
+		printf("\nHOW MUCH IS %.0f X %.0f = \n", num1, num2);
+		result = num1 * num2;
+		break;
+
+	case 'D':    printf("\nDIVISION\n");
+		printf("\nHOW MUCH IS %.0f / %.0f = \n", num1, num2);
+		result = num1 / num2;
+		break;
+
+	case 'A':    printf("\nADDITION\n");
+		printf("\nHOW MUCH IS %.0f + %.0f = \n", num1, num2);
+		result = num1 + num2;
+		break;
+
+	case 'S':    printf("\nSUBTRACTION\n");
+		printf("\nHOW MUCH IS %.0f - %.0f = \n", num1, num2);
+		result = (num1 - num2);
+		break;
+
+	default:     printf("\nERROR IN SYSTEM\n,%c", option);
+		break;
+	}
+
+	return result;     //Ok return the value of result back to main.
+}
+/*******************************END OF CALCULATE FUNCTION *************************/
+
+/************************************RANDOM NUMBER FUNCTION ***********************/
+void randomNum(float *num1, float *num2, int MAXrandNum1, int MAXrandNum2)
+{
+	//Could have done better with 2 extra variables and pointers.
+	if (MAXrandNum1 <= 9)
+	{
+		srand(time(NULL));
+		*num2 = rand() % MAXrandNum2 + 1;
+		Sleep(50);
+		*num1 = rand() % MAXrandNum1 + 1;
+	}
+	else
+	if (MAXrandNum1 > 9)
+	{
+		if (MAXrandNum2 <= 9)
+		{
+			srand(time(NULL));
+			*num2 = rand() % MAXrandNum2 + 1;
+			Sleep(50);
+			*num1 = rand() % MAXrandNum1 + 9;
+		}
+		else
+		{
+			srand(time(NULL));
+			*num2 = rand() % MAXrandNum2 + 9;
+			Sleep(50);
+			*num1 = rand() % MAXrandNum1 + 9;
+		}
+	}
+}
+/*********************************END OF RANDOM NUMBER FUNCTION ********************/
+
+/*************************************INPUT FUNCTION *******************************/
+char input(int *ptr_ThemeMusic)
+{
+	char option;
+
+	do
+	{
+		CLEAR
+			gotoxy(30, 10);
+		printf("WHAT OPERATION DO YOU WANT TO CARRY OUT?\n\n\n");
+		printf("M: FOR Multiplication\n\n");
+		printf("D: FOR Division\n\n");
+		printf("A: FOR Addition\n\n");
+		printf("S: FOR Substraction\n\n");
+		printf("X: FOR Mix Questions\n\n");
+		printf("C: TO  Change Music\n\n");
+		printf("Q: TO  Quit\n\n");
+		printf("ENTER YOUR CHOICE:\n\n==>");
+
+
+		option = getch();                  //Accepts user's input and stores it in the variable option as a character
+
+		fflush(stdin);                   //This clears out any leftover values from scanf.
+
+		option = toupper(option);          //Here we change the letter accepted from the user to upper case and save it back to option.
+
+		//Ok that checks validity of options and performs special functions
+		if (option != 'M' && option != 'A'&& option != 'D'&& option != 'S' && option != 'X')
+		{
+			if (option == 'Q')
+			{
+				printf("\n\nDO YOU REALL WANT TO QUIT? Y/N:\n==>");
+				//scanf("%c",&option);
+				option = getch();
+				option = toupper(option);      //What ever the user enter.
+
+				if (option == 'Y')
+				{
+					printf("\nBYE BYE!!\n");
+					sleep(2);
+					exit(0);               //A exit function should be created here.
+				}//end if(option=='Y')
+
+				else
+				{
+					system("cls");
+					continue;
+				}//end else of if(option=='Y')
+
+			}  //end if(option=='Q')
+			else
+			if (option == 'C')
+			{
+				ThemeMusicFunc(ptr_ThemeMusic);
+				continue;
+			} //End if(option=='C')
+
+			printf("\nPLEASE ENTER A VALUED OPTION\n");
+			sleep(2);
+			system("cls");         //If its invalid den it clears the screen and starts over the loop.
+			continue;              //Starts over the loop without running anything else.
+		}//end of if(option != 'M' && option != 'A'&& option != 'D'&& option != 'S')
+
+		break;     //Break out of the loop if option is valid.
+
+	} while (1);    //infinite while loop, loop until option is valid, the it will break out of the loop
+
+	CLEAR
+		return option;
+}               //Once every thing is ok with Mrs. "option", return her to main...........
+/***************************************END OF INPUT FUNCTION  *********************/
+
+/****************************************FULLSCREEN FUNTION ************************/
+void Fullscreen()
+{
+	HWND hWnd;                                                    //Creating a new handle for a window
+	SetConsoleTitle("CAI");                          //Changes the title of the window......
+	hWnd = FindWindow(NULL, "CAI");                  //Assigns this window to the handle we created....Something like that
+
+	SendMessage(hWnd, WM_SYSKEYDOWN, VK_RETURN, 0xFF000000);      //Passed the boring stuff, this is the nice part,puts the window in fullscreen
+
+}
+/************************************END OF FULLSCREEN FUNCTION *********************/
+
+/*************************************GOOD RESPONSE *****************************************/
+void goodResponse()
+{
+	//Wasn't Good on making good responses (nor good complements) but let me try....Danger..
+	int response;
+
+	srand(time(0));
+	response = rand() % 4 + 1;
+
+	switch (response)
+	{
+	case 1:	printf("\nTHATS CORRECT! ROUND OF APPLAUSE FOR YOU\n");
+		PlaySound(TEXT("Sounds\\aplauso.wav"), NULL, SND_SYNC);
+		break;
+
+	case 2:	printf("\nWOW YOU GOT THAT CORRECT!\n");
+		PlaySound(TEXT("Sounds\\explode.wav"), NULL, SND_SYNC);
+		break;
+
+	case 3:	printf("\nCORRECT!,YOU DESERVE A KISS\n");
+		PlaySound(TEXT("Sounds\\comida.wav"), NULL, SND_SYNC);
+		break;
+
+	case 4:	printf("\nYOU HAVE DONE IT AGAIN!,YOU CAN LAUGH PROUDLY!\n");
+		PlaySound(TEXT("Sounds\\laugh.wav"), NULL, SND_SYNC);
+		break;
+
+	case 5:	printf("\nYOUR ANSWER IS CORRECT\n");
+		PlaySound(TEXT("Sounds\\explode.wav"), NULL, SND_SYNC);
+		break;
+	}
+}
+/******************************************END OF GOOD RESPONSE FUNCTION **********************************/
+
+/**************************************** BAD RESPONSE FUNCTION***********************************/
+void badResponse()                //Generates a randum response
+{
+	//Regrets for insults..........losers
+	int response;
+
+	srand(time(0));             //Seeds the randum number off the systems time,
+	response = rand() % 4 + 1;     //assigns a randum number between 1 and 5 to response
+
+	switch (response)            //Switch the response to generate the appropriate response
+	{
+	case 1:	printf("\nCOME ON, I KNOW YOU CAN DO BETTER THAN THAT\n");
+		PlaySound("something", NULL, SND_SYNC);
+		break;
+
+	case 2:	printf("\nTHAT IS INCORRECT, TRY AGAIN\n");
+		PlaySound("something", NULL, SND_SYNC);
+		break;
+
+	case 3:	printf("\nWRONG ANSWER, YOU CAN DO BETTER\n");
+		PlaySound("something", NULL, SND_SYNC);
+		break;
+
+	case 4:	printf("\nTHATS WRONG, DONT WORRY, TRY AGAIN\n");
+		PlaySound("something", NULL, SND_SYNC);
+		break;
+
+	case 5:	printf("\nTHATS WRONG, BUT DONT GIVE UP!\n");
+		PlaySound("something", NULL, SND_SYNC);
+		break;
+	}
+
+}
+/****************************************END OF BAD RESPONSE FUCNTION *********************************/
+
+/**********************************************CUSTOMIZE GOTOXY FUNCTION ******************************/
+/*
+void gotoxy(int x, int y)                  //put the cursor in a position based on the x and y values
+{
+COORD coord;                                //Creates a new object of COORD
+coord.X = x;
+coord.Y = y;
+SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);     //This sets the cursor position
+}
+*/
+/************************************************END OF CUSTOMIZE GOTOXY FUNCTION*********************/
+
+/*************************************************THEMEMUSIC FUNCITON*********************************/
+void ThemeMusicFunc(int *ptr_ThemeMusic)
+{
+	switch (*ptr_ThemeMusic)
+	{
+	case 1:     PLAYSONG(2);
+		*ptr_ThemeMusic = *ptr_ThemeMusic + 1;
+		break;
+
+	case 2:     PLAYSONG(3);
+		*ptr_ThemeMusic = *ptr_ThemeMusic + 1;
+		break;
+
+	case 3:     PLAYSONG(4);
+		*ptr_ThemeMusic = *ptr_ThemeMusic + 1;
+		break;
+
+	case 4:     PLAYSONG(5);
+		*ptr_ThemeMusic = *ptr_ThemeMusic + 1;
+		break;
+
+	case 5:     PLAYSONG(6);
+		*ptr_ThemeMusic = *ptr_ThemeMusic + 1;
+		break;
+
+	case 6:		PLAYSONG(1);
+
+	default:    *ptr_ThemeMusic = 1;
+		break;
+	}
+}
+/***********************************************END OF THEMEMUSIC FUNCITON*********************************/
+
+/*************************************************PLAYSONG FUNCITON****************************************/
+void PLAYSONG(int song)
+{
+	//Wow, my first media player, maybe soon i'll implement crossfader like virtual dj!!
+	switch (song)
+	{
+	case 1:     PlaySound("Themes\\ThemeSong1.wav", NULL, SND_ASYNC | SND_LOOP);
+		break;
+
+	case 2:     PlaySound("Themes\\ThemeSong2.wav", NULL, SND_ASYNC | SND_LOOP);
+		break;
+
+	case 3:     PlaySound("Themes\\ThemeSong3.wav", NULL, SND_ASYNC | SND_LOOP);
+		break;
+
+	case 4:     PlaySound("Themes\\ThemeSong4.wav", NULL, SND_ASYNC | SND_LOOP);
+		break;
+
+	case 5:     PlaySound("Themes\\ThemeSong5.wav", NULL, SND_ASYNC | SND_LOOP);
+		break;
+
+		//Here is left empty so that no sound is played, the user then has a choice to stop the music if he/she dont want to here anything.
+	case 6:     PlaySound("SILENT", NULL, SND_ASYNC);
+		break;
+
+	default:    PlaySound("Themes\\ThemeSong1.wav", NULL, SND_ASYNC | SND_LOOP);	//Wont be necessary though but it Plays Themesong1 as the default theme
+		break;
+	}
+}
+/**********************************************END OF PLAYSONG FUNCITON**********************************/
+
+char Mix_Questions()
+{
+	int Num_option;
+	char option;
+
+	Num_option = rand() % 3 + 1;
+
+	switch (Num_option)
+	{
+	case 1: 	option = 'M';
+		break;
+	case 2:  option = 'D';
+		break;
+	case 3:  option = 'A';
+		break;
+	case 4:  option = 'S';
+		break;
+	}
+	return option;
+}
+
+void nextLevel(int *MAXrandNum1, int *MAXrandNum2, int *currentLevel, int *passGrade)
+{
+
+	if (*currentLevel == 1)                          //Resets the values needed throughout the program
+	{
+		*MAXrandNum1 = 20;
+		*MAXrandNum2 = 9;
+		*currentLevel = 2;
+		*passGrade = 80;
+	}
+
+	else
+	if (*currentLevel == 2)
+	{
+		*MAXrandNum1 = 20;
+		*MAXrandNum2 = 20;
+		*currentLevel = 3;
+		*passGrade = 90;
+	}
+	else
+	if (*currentLevel == 3)
+	{
+		certificate();
+		PAUSE
+			exit(0);                //An exit function should be created and called here.
+	}//End if(currentLevel==3)
+}
+
+int playOver_Level()
+{
+	char option[2], *ptr_option;
+	ptr_option = option;
+
+	CLEAR
+		printf("\nDO YOU WANT TO TRY THIS LEVEL AGAIN?\n\tENTER\n");
+	printf("\nY: FOR YES\n");
+	printf("\nN: FOR NO AND TO QUIT\n\n");
+	reads(ptr_option, 1);
+
+	my_TouppersFunc(ptr_option, 1);
+
+	if (strcmp(option, "N") == 0)
+	{
+		CLEAR
+			printf("\n\nOK THEN, THIS PROGRAM WILL EXIT\n\n");
+		PAUSE
+			exit(0);
+	}//END of if(option=='C');
+	return 0;
+}
+
+void sub_options(int *ptr_ThemeMusic)
+{
+	CLEAR
+		char choose[2], *ptr_choose;
+	ptr_choose = choose;
+
+	printf("\nENTER \n1: TO CONTINUE\n2: TO EXIT\n\C: TO CHANGE MUSIC\n==>");
+
+	while (1)
+	{
+		reads(ptr_choose, 1);
+		my_TouppersFunc(ptr_choose, 1);
+
+		if (strcmp(choose, "1") == 0)
+		{
+			break;
+		}
+		else
+		if (strcmp(choose, "2") == 0)
+		{
+			CLEAR
+				printf("\nPROGRAM WILL EXIT\n");
+			PAUSE
+				exit(0);
+		}
+		else
+		if (strcmp(choose, "C") == 0)
+		{
+			ThemeMusicFunc(ptr_ThemeMusic);
+			printf("\b \b");
+			continue;
+		}
+		else
+		{
+			printf("\b \b");
+		}
+	}
+}
+
+void certificate()
+{
+	char name[26], *ptr_name;
+	ptr_name = name;
+
+	system("cls");
+	printf("\n\nYOU HAVE COMPLETED THE PROGRAM WITH FLYING COLORS!\n\n");
+
+	printf("\n\n\nENTER YOUR FULL NAMAE SO WE CAN CREATE A CERTIFICATE FOR YOU (No more than 25 Letters)\n==> ");
+	reads(ptr_name, 25);
+
+	my_TouppersFunc(ptr_name, 25);
+
+	system("cls");
+	gotoxy(4, 7);
+	printf(" ####   #    ###       ### ### ###   ##### ### ###   ##   #    ##### #####");
+	gotoxy(4, 8);
+	printf("##  #   ##    #         #   #   #      #    #   ##  ##    ##     #    #  #");
+	gotoxy(4, 9);
+	printf("#      # #    #         #   #   #      #    #   ### ##   # #     #    ### ");
+	gotoxy(4, 10);
+	printf("#      ####   #  #####  #   #   #      #    #   # ## #   ####    #    #   ");
+	gotoxy(4, 11);
+	printf("##    #   #   #         #   #   #  #   #    #   # #  #  #   #    #    #  #");
+	gotoxy(4, 12);
+	printf(" #### #   ## ###        #####  #####  ###  ### ###  ### #   ##  ###  #####");
+
+	gotoxy(9, 14);
+	printf(" #### ##### #####  ##### ### ##### ###  ####   #    ##### #####");
+	gotoxy(9, 15);
+	printf("##  #  #  #  #  #    #    #   #  #  #  ##  #   ##     #    #  #");
+	gotoxy(9, 16);
+	printf("#      ###   #  #    #    #   ###   #  #      # #     #    ### ");
+	gotoxy(9, 17);
+	printf("#      #     ###     #    #   #     #  #      ####    #    #   ");
+	gotoxy(9, 18);
+	printf("##     #  #  # ##    #    #   #     #  ##    #   #    #    #  #");
+	gotoxy(9, 19);
+	printf(" #### ##### ### ##  ###  ### ##    ###  #### #   ##  ###  #####");
+
+	gotoxy(9, 22);
+	printf("______________________________________________________________________");
+	gotoxy(8, 24);
+	printf("(T ) H ) I ) S )  ( I ) S )  ( T ) O )  ( C ) E ) R ) T ) I ) F ) Y )");
+	gotoxy(9, 25);
+	printf("______________________________________________________________________");
+
+	gotoxy(28, 30);
+	printf("%s", name);
+
+	gotoxy(30, 35);
+	printf(" ( F ) O ) R )");
+	gotoxy(15, 37);
+	printf("( C ) A ) I )  -  ( U ) L ) T ) I ) M ) A ) T ) E )");
+	gotoxy(1, 39);
+	printf(" ( P ) R ) O ) G ) R ) A ) M )   ( C ) O ) M ) P ) L ) E ) T ) I ) O ) N )");
+
+	getch();
+}
+
